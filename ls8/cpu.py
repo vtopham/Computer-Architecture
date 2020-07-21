@@ -44,12 +44,11 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-        elif op == "HLT":
-            return
-        elif op == "LDI":
-            self.reg[reg_a] = reg_b
+            pc += 1
+        
         elif op == "PRN":
             print(self.reg[reg_a])
+            pc += 1
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -75,5 +74,30 @@ class CPU:
         print()
 
     def run(self):
-        """Run the CPU."""
-        pass
+        self.pc = 0
+        running = True
+        print("we got to run!")
+        while running == True:
+            instruction = self.ram_read(self.pc)
+            print(f"the instruction is {instruction}")
+            if instruction == 0b00000001: #HLT
+                print("halting...")
+                running = False
+                exit
+            elif instruction == 0b10000010: #LDI 
+                self.pc += 1
+                register_to_set = self.ram_read(self.pc)
+                self.pc += 1
+                int_to_set = self.ram_read(self.pc)
+                self.reg[register_to_set] = int_to_set
+                print(f"stored {int_to_set} in {register_to_set}")
+                self.pc += 1
+            elif instruction == 0b01000111: #PRN
+                self.pc += 1
+                register_to_print = self.ram_read(self.pc)
+                print("printing...")
+                print(self.reg[register_to_print])
+                self.pc += 1
+            else:
+                print("unknown instruction")
+                running = False
