@@ -56,11 +56,9 @@ class CPU:
 
         if op == "ADD":
             self.reg[reg_a] += self.reg[reg_b]
-            pc += 1
-        
-        elif op == "PRN":
-            print(self.reg[reg_a])
-            pc += 1
+           
+        elif op == "MUL":
+            self.reg[reg_a] = self.reg[reg_a] * self.reg[reg_b]
         #elif op == "SUB": etc
         else:
             raise Exception("Unsupported ALU operation")
@@ -105,6 +103,15 @@ class CPU:
                 register_to_print = self.ram_read(self.pc)
                 
                 print(self.reg[register_to_print])
+                self.pc += 1
+            elif instruction == 0b10100010: #mult
+                self.pc += 1
+                reg_a = self.ram_read(self.pc)
+                self.pc += 1
+                reg_b = self.ram_read(self.pc)
+                
+                self.alu("MUL", reg_a, reg_b)
+
                 self.pc += 1
             else:
                 print("unknown instruction")
