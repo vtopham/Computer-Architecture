@@ -18,22 +18,34 @@ class CPU:
        
 
     def load(self):
+
+        import sys
         """Load a program into memory."""
 
         address = 0
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
 
+        program = []
+        with open(sys.argv[1]) as f:
+            for line in f:
+                try:
+                    line = line.split("#",1)[0]
+                    line = int(line, 2)
+                    program.append(line)
+                except ValueError:
+                    pass
+        
         for instruction in program:
             self.ram[address] = instruction
             address += 1
@@ -76,12 +88,9 @@ class CPU:
     def run(self):
         self.pc = 0
         running = True
-        print("we got to run!")
         while running == True:
             instruction = self.ram_read(self.pc)
-            print(f"the instruction is {instruction}")
             if instruction == 0b00000001: #HLT
-                print("halting...")
                 running = False
                 exit
             elif instruction == 0b10000010: #LDI 
@@ -90,12 +99,11 @@ class CPU:
                 self.pc += 1
                 int_to_set = self.ram_read(self.pc)
                 self.reg[register_to_set] = int_to_set
-                print(f"stored {int_to_set} in {register_to_set}")
                 self.pc += 1
             elif instruction == 0b01000111: #PRN
                 self.pc += 1
                 register_to_print = self.ram_read(self.pc)
-                print("printing...")
+                
                 print(self.reg[register_to_print])
                 self.pc += 1
             else:
