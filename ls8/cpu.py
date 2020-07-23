@@ -12,6 +12,18 @@ class CPU:
         self.sp = 7
         self.reg[self.sp] = 0xf4
 
+        self.bin_table = {
+            "HLT": 0b00000001,
+            "LDI": 0b10000010,
+            "PRN": 0b01000111,
+            "MUL": 0b10100010,
+            "ADD": 0b10100000,
+            "PUSH": 0b01000101,
+            "POP": 0b01000110,
+            "CALL": 0b01010000,
+            "RET": 0b00010001
+        }
+
     def ram_read(self, pc):
         return self.ram[pc]
 
@@ -49,7 +61,6 @@ class CPU:
                     pass
         
         for instruction in program:
-            print(f"address is {address}")
             self.ram[address] = instruction
             address += 1
 
@@ -92,23 +103,23 @@ class CPU:
         running = True
         while running == True:
             instruction = self.ram_read(self.pc)
-            if instruction == 0b00000001: #HLT
+            if instruction ==self.bin_table["HLT"]: #HLT
                 running = False
                 exit
-            elif instruction == 0b10000010: #LDI 
+            elif instruction == self.bin_table["LDI"]: #LDI 
                 self.pc += 1
                 register_to_set = self.ram_read(self.pc)
                 self.pc += 1
                 int_to_set = self.ram_read(self.pc)
                 self.reg[register_to_set] = int_to_set
                 self.pc += 1
-            elif instruction == 0b01000111: #PRN
+            elif instruction == self.bin_table["PRN"]: #PRN
                 self.pc += 1
                 register_to_print = self.ram_read(self.pc)
                 
                 print(self.reg[register_to_print])
                 self.pc += 1
-            elif instruction == 0b10100010: #mult
+            elif instruction == self.bin_table["MUL"]: #mult
                 self.pc += 1
                 reg_a = self.ram_read(self.pc)
                 self.pc += 1
@@ -117,7 +128,7 @@ class CPU:
                 self.alu("MUL", reg_a, reg_b)
 
                 self.pc += 1
-            elif instruction == 0b10100000: #add
+            elif instruction == self.bin_table["ADD"]: #add
                 self.pc += 1
                 reg_a = self.ram_read(self.pc)
                 self.pc += 1
@@ -127,7 +138,7 @@ class CPU:
 
                 self.pc += 1
 
-            elif instruction == 0b01000101: #PUSH
+            elif instruction == self.bin_table["PUSH"]: #PUSH
                 self.reg[self.sp] -= 1
                 self.reg[self.sp] &= 0xff
 
@@ -143,7 +154,7 @@ class CPU:
 
                 self.pc += 2
 
-            elif instruction == 0b01000110: #pop
+            elif instruction == self.bin_table["POP"]: #pop
                 #grab our value from where the sp is pointing
                 pop_from = self.reg[self.sp]
                 value = self.ram[pop_from]
@@ -156,7 +167,7 @@ class CPU:
                 self.reg[self.sp] += 1
                 self.pc += 2
 
-            elif instruction == 0b01010000: #CALL
+            elif instruction == self.bin_table["CALL"]: #CALL
                 return_address = self.pc + 2 #hop after the register, this is where we'll fall back to
 
                 #okay put it on the stack
@@ -170,7 +181,7 @@ class CPU:
 
                 self.pc = subroutine_address
 
-            elif instruction == 0b00010001: #RETURN
+            elif instruction == self.bin_table["RET"]: #RETURN
                 #grab the return addy from the top of the stack
                 add_pop_from = self.reg[self.sp]
                 return_address = self.ram[add_pop_from]
