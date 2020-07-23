@@ -6,9 +6,11 @@ class CPU:
     """Main CPU class."""
 
     def __init__(self):
-        self.ram = [0] * 25
+        self.ram = [0] * 255
         self.reg = [0] * 8
         self.pc = 0
+        self.sp = 7
+        self.reg[self.sp] = 0xf4
 
     def ram_read(self, pc):
         return self.ram[pc]
@@ -47,6 +49,7 @@ class CPU:
                     pass
         
         for instruction in program:
+            print(f"address is {address}")
             self.ram[address] = instruction
             address += 1
 
@@ -113,6 +116,34 @@ class CPU:
                 self.alu("MUL", reg_a, reg_b)
 
                 self.pc += 1
+            elif instruction == 0b01000101: #PUSH
+                self.reg[self.sp] -= 1
+                self.reg[self.sp] &= 0xff
+
+                #what's the value of the register?
+                reg_num = self.ram[self.pc + 1]
+                value = self.reg[reg_num]
+
+                #ok put that in memory
+                push_to = self.reg[self.sp]
+                self.ram[push_to] = value
+
+                #now move the pc
+
+                self.pc += 2
+
+            elif instruction == 0b01000110: #pop
+                #grab our value from where the sp is pointing
+                pop_from = self.reg[self.sp]
+                value = self.ram[pop_from]
+
+                #store it in the register it gave us
+                reg_num = self.ram[self.pc + 1]
+                self.reg[reg_num] = value
+                
+                #increment since we popped
+                self.reg[self.sp] += 1
+                self.pc += 2
             else:
                 print("unknown instruction")
                 running = False
