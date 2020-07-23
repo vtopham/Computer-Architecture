@@ -62,7 +62,8 @@ class CPU:
            
         elif op == "MUL":
             self.reg[reg_a] = self.reg[reg_a] * self.reg[reg_b]
-        #elif op == "SUB": etc
+        elif op == "ADD":
+            self.reg[reg_a] = self.reg[reg_a] + self.reg[reg_b]
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -116,6 +117,16 @@ class CPU:
                 self.alu("MUL", reg_a, reg_b)
 
                 self.pc += 1
+            elif instruction == 0b10100000: #add
+                self.pc += 1
+                reg_a = self.ram_read(self.pc)
+                self.pc += 1
+                reg_b = self.ram_read(self.pc)
+
+                self.alu("ADD", reg_a, reg_b)
+
+                self.pc += 1
+
             elif instruction == 0b01000101: #PUSH
                 self.reg[self.sp] -= 1
                 self.reg[self.sp] &= 0xff
@@ -144,6 +155,29 @@ class CPU:
                 #increment since we popped
                 self.reg[self.sp] += 1
                 self.pc += 2
+
+            elif instruction == 0b01010000: #CALL
+                return_address = self.pc + 2 #hop after the register, this is where we'll fall back to
+
+                #okay put it on the stack
+                self.reg[self.sp] -= 1 #decrement the stack
+                push_to = self.reg[self.sp]
+                self.ram[push_to] = return_address
+
+                #now set the pc to the sub addy
+                reg_number = self.ram[self.pc + 1]
+                subroutine_address = self.reg[reg_number]
+
+                self.pc = subroutine_address
+
+            elif instruction == 0b00010001: #RETURN
+                #grab the return addy from the top of the stack
+                add_pop_from = self.reg[self.sp]
+                return_address = self.ram[add_pop_from]
+                self.reg[self.sp] += 1
+
+                self.pc = return_address
+
             else:
-                print("unknown instruction")
+                print(f"unknown instruction is {instruction}")
                 running = False
