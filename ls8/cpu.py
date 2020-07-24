@@ -25,7 +25,8 @@ class CPU:
             "RET": 0b00010001,
             "CMP": 0b0100111,
             "JMP": 0b01010100,
-            "JEQ": 0b01010101 
+            "JEQ": 0b01010101,
+            "JNE": 0b01010110 
         }
 
     def ram_read(self, pc):
@@ -218,9 +219,18 @@ class CPU:
             elif instruction == self.bin_table["JEQ"]:
                 self.pc += 1
                 add_to_grab = self.reg[self.pc]
-                if self.flag == 0b00000001:
+                if self.flag == 0b00000001: #if they are equal
                     self.pc == add_to_grab
+                else:
+                    self.pc += 1
 
+            elif instruction == self.bin_table["JNE"]:
+                self.pc += 1
+                add_to_grab = self.reg[self.pc]
+                if self.flag != 0b00000001: #if they are not equal
+                    self.pc == add_to_grab
+                else:
+                    self.pc += 1
 
             else:
                 print(f"unknown instruction is {instruction}")
