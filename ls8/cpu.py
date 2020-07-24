@@ -23,7 +23,7 @@ class CPU:
             "POP": 0b01000110,
             "CALL": 0b01010000,
             "RET": 0b00010001,
-            "CMP": 0b0100111,
+            "CMP": 0b10100111,
             "JMP": 0b01010100,
             "JEQ": 0b01010101,
             "JNE": 0b01010110 
@@ -213,22 +213,25 @@ class CPU:
 
             elif instruction == self.bin_table["JMP"]:
                 self.pc += 1
-                value_to_grab = self.reg[self.pc]
+                register_in_question = self.ram[self.pc]
+                value_to_grab = self.reg[register_in_question]
                 self.pc = value_to_grab
 
             elif instruction == self.bin_table["JEQ"]:
                 self.pc += 1
-                add_to_grab = self.reg[self.pc]
+                register_in_question = self.ram[self.pc]
+                add_to_grab = self.reg[register_in_question]
                 if self.flag == 0b00000001: #if they are equal
-                    self.pc == add_to_grab
+                    self.pc = add_to_grab
                 else:
                     self.pc += 1
 
             elif instruction == self.bin_table["JNE"]:
                 self.pc += 1
-                add_to_grab = self.reg[self.pc]
+                register_in_question = self.ram[self.pc]
+                add_to_grab = self.reg[register_in_question]
                 if self.flag != 0b00000001: #if they are not equal
-                    self.pc == add_to_grab
+                    self.pc = add_to_grab
                 else:
                     self.pc += 1
 
