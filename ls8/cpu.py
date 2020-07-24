@@ -23,7 +23,8 @@ class CPU:
             "POP": 0b01000110,
             "CALL": 0b01010000,
             "RET": 0b00010001,
-            "CMP": 0b0100111
+            "CMP": 0b0100111,
+            "JMP": 0b01010100
         }
 
     def ram_read(self, pc):
@@ -207,6 +208,11 @@ class CPU:
                 self.reg[self.sp] += 1
 
                 self.pc = return_address
+
+            elif instruction == self.bin_table["JMP"]:
+                self.pc += 1
+                value_to_grab = self.reg[self.pc]
+                self.pc = value_to_grab
 
             else:
                 print(f"unknown instruction is {instruction}")
