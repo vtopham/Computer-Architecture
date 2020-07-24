@@ -11,7 +11,7 @@ class CPU:
         self.pc = 0
         self.sp = 7
         self.reg[self.sp] = 0xf4
-        self.equal = 0b00000000
+        self.flag = 0b00000000
 
         self.bin_table = {
             "HLT": 0b00000001,
@@ -24,7 +24,8 @@ class CPU:
             "CALL": 0b01010000,
             "RET": 0b00010001,
             "CMP": 0b0100111,
-            "JMP": 0b01010100
+            "JMP": 0b01010100,
+            "JEQ": 0b01010101 
         }
 
     def ram_read(self, pc):
@@ -213,6 +214,13 @@ class CPU:
                 self.pc += 1
                 value_to_grab = self.reg[self.pc]
                 self.pc = value_to_grab
+
+            elif instruction == self.bin_table["JEQ"]:
+                self.pc += 1
+                add_to_grab = self.reg[self.pc]
+                if self.flag == 0b00000001:
+                    self.pc == add_to_grab
+
 
             else:
                 print(f"unknown instruction is {instruction}")
