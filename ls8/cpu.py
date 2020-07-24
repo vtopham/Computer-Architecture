@@ -11,6 +11,7 @@ class CPU:
         self.pc = 0
         self.sp = 7
         self.reg[self.sp] = 0xf4
+        self.equal = 0b00000000
 
         self.bin_table = {
             "HLT": 0b00000001,
@@ -21,7 +22,8 @@ class CPU:
             "PUSH": 0b01000101,
             "POP": 0b01000110,
             "CALL": 0b01010000,
-            "RET": 0b00010001
+            "RET": 0b00010001,
+            "CMP": 0b0100111
         }
 
     def ram_read(self, pc):
@@ -75,6 +77,14 @@ class CPU:
             self.reg[reg_a] = self.reg[reg_a] * self.reg[reg_b]
         elif op == "ADD":
             self.reg[reg_a] = self.reg[reg_a] + self.reg[reg_b]
+        elif op == "CMP":
+            if self.reg[reg_a] < self.reg[reg_b]:
+                self.flag = 0b00000100 #a is less than b
+            elif self.reg[reg_a] > self.reg[reg_b]:
+                self.flag = 0b00000010 #a is greater than b
+            else:
+                self.flag = 0b00000001 #they are equal
+
         else:
             raise Exception("Unsupported ALU operation")
 
@@ -135,6 +145,15 @@ class CPU:
                 reg_b = self.ram_read(self.pc)
 
                 self.alu("ADD", reg_a, reg_b)
+
+                self.pc += 1
+            elif instruction == self.bin_table["CMP"]: #cmp
+                self.pc += 1
+                reg_a = self.ram_read(self.pc)
+                self.pc += 1
+                reg_b = self.ram_read(self.pc)
+
+                self.alu("CMP", reg_a, reg_b)
 
                 self.pc += 1
 
